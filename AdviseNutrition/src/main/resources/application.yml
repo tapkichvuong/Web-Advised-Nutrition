@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nutrition
+    username: postgres
+    password: mypgdbpass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl_auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+application:
+  security:
+    jwt:
+      secret-key: 74280021CA2B6C1E1AFD76A346E3FB1CC666CBAA70058D2FA15D94ACDCA02293
+      expiration: 3600000 # a hour
+      refresh-token:
+        expiration: 864000000 # 10 day test
