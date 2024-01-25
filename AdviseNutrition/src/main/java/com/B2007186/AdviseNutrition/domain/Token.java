@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,19 +17,22 @@ public class Token {
 
     @Id
     @GeneratedValue
-    public Long id;
+    @Column(name = "token_id",nullable = false, unique = true)
+    private Long id;
 
     @Column(unique = true)
-    public String token;
+    private String token;
 
     @Enumerated(EnumType.STRING)
-    public TokenType tokenType;
+    private TokenType tokenType;
 
-    public boolean revoked;
+    private boolean revoked;
 
-    public boolean expired;
+    private boolean expired;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    private LocalDateTime revocationDate;
+
+    @ManyToOne
     @JoinColumn(name = "user_id")
     public User user;
 }

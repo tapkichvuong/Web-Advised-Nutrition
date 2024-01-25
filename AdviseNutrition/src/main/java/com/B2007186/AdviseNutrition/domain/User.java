@@ -21,7 +21,7 @@ import java.util.List;
 @Builder
 public class User implements UserDetails {
     @Id @GeneratedValue
-    @Column(nullable = false, unique = true)
+    @Column(name = "user_id", nullable = false, unique = true)
     private Long id;
     @Column(nullable = false, unique = true)
     private String userName;
@@ -37,9 +37,23 @@ public class User implements UserDetails {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
+    private Boolean isActive;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private List<Token> tokens;
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id")
+    private Address address;
+
+    @OneToOne(fetch = FetchType.EAGER, mappedBy = "user")
+    private DoctorLicense license;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    private List<Post> post;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    private List<Comment> comment;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

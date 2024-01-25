@@ -1,6 +1,8 @@
 package com.B2007186.AdviseNutrition.service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 import com.B2007186.AdviseNutrition.domain.Role;
@@ -32,12 +34,15 @@ public class AuthService{
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     public AuthenticationRes register(RegisterReq request) {
+        var isActive = (request.getRole() == Role.CUSTOMER);
         var user = User.builder()
+                .userName(request.getUserName())
                 .firstName(request.getFirstname())
                 .lastName(request.getLastname())
                 .email(request.getEmail())
                 .passWord(passwordEncoder.encode(request.getPassword()))
-                .role(Role.CUSTOMER)
+                .role(request.getRole())
+                .isActive(isActive)
                 .build();
         var savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
@@ -75,6 +80,7 @@ public class AuthService{
                 .tokenType(TokenType.BEARER)
                 .expired(false)
                 .revoked(false)
+                .revocationDate(LocalDateTime.now().plusMinutes(60))
                 .build();
         tokenRepository.save(token);
     }
