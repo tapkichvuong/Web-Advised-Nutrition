@@ -20,13 +20,14 @@ public class PostController {
     public ResponseEntity<PostRes> addPost(@RequestBody PostReq post){
         return ResponseEntity.ok(postService.addPost(post));
     }
-    @GetMapping("{postId}")
-    public ResponseEntity<PostRes> getPost(@PathVariable("postId") Long postId){
-        return ResponseEntity.ok(postService.getPost(postId));
-    }
-    @GetMapping
-    public ResponseEntity<List<PostRes>> getPostList(){
-        return ResponseEntity.ok(postService.getPostList());
+
+    @PutMapping("{postId}")
+    public ResponseEntity<PostRes> updatePost(@PathVariable("postId") Long postId, @RequestBody PostReq post){
+        return ResponseEntity.ok(postService.updatePost(postId, post));
     }
 
+    @DeleteMapping("{postId}")
+    public ResponseEntity<String> deletePost(@PathVariable("postId") Long postId){
+        return ResponseEntity.ok(postService.deletePost(postId));
+    }
 }
