@@ -1,26 +1,27 @@
 package com.B2007186.AdviseNutrition.service;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Optional;
 
-import com.B2007186.AdviseNutrition.domain.Role;
 import com.B2007186.AdviseNutrition.domain.Token;
 import com.B2007186.AdviseNutrition.domain.TokenType;
-import com.B2007186.AdviseNutrition.domain.User;
+import com.B2007186.AdviseNutrition.domain.Users.Client;
+import com.B2007186.AdviseNutrition.domain.Users.Doctor;
+import com.B2007186.AdviseNutrition.domain.Users.Seller;
+import com.B2007186.AdviseNutrition.domain.Users.User;
 import com.B2007186.AdviseNutrition.dto.AuthenticationReq;
 import com.B2007186.AdviseNutrition.dto.AuthenticationRes;
-import com.B2007186.AdviseNutrition.dto.RegisterReq;
 import com.B2007186.AdviseNutrition.repository.TokenRepository;
 import com.B2007186.AdviseNutrition.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -30,30 +31,46 @@ import lombok.RequiredArgsConstructor;
 public class AuthService{
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    public AuthenticationRes register(RegisterReq request) {
-        var isActive = (request.getRole() == Role.CUSTOMER);
-        var user = User.builder()
-                .userName(request.getUserName())
-                .firstName(request.getFirstname())
-                .lastName(request.getLastname())
-                .email(request.getEmail())
-                .passWord(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
-                .isActive(isActive)
-                .build();
-        var savedUser = userRepository.save(user);
+    private final EmailSenderService emailSenderService;
+    public AuthenticationRes registerClient(Client user)
+            throws MessagingException, UnsupportedEncodingException {
+        Client savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
+        emailSenderService.sendVerificationEmail(user);
         return AuthenticationRes.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
     }
 
+    public AuthenticationRes registerDoctor(Doctor user)
+            throws MessagingException, UnsupportedEncodingException {
+        Doctor savedUser = userRepository.save(user);
+        var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        saveUserToken(savedUser, jwtToken);
+        emailSenderService.sendVerificationEmail(user);
+        return AuthenticationRes.builder()
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+    public AuthenticationRes registerSeller(Seller user)
+            throws MessagingException, UnsupportedEncodingException {
+        Seller savedUser = userRepository.save(user);
+        var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        saveUserToken(savedUser, jwtToken);
+        emailSenderService.sendVerificationEmail(user);
+        return AuthenticationRes.builder()
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
     public AuthenticationRes authenticate(AuthenticationReq request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -63,6 +80,13 @@ public class AuthService{
         );
         var user = userRepository.findByUserName(request.getUserName())
                 .orElseThrow();
+        if(!user.getEnabled()){
+            return AuthenticationRes.builder()
+                    .accessToken(null)
+                    .refreshToken(null)
+                    .message("Account is not available")
+                    .build();
+        }
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
@@ -122,6 +146,21 @@ public class AuthService{
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }
+    }
+
+    public boolean verify(String verificationCode) {
+        User user = userRepository.findByVerificationCode(verificationCode).get();
+
+        if (user.isEnabled()) {
+            return false;
+        } else {
+            user.setVerificationCode(null);
+            user.setEnabled(true);
+            userRepository.save(user);
+
+            return true;
+        }
+
     }
 }
 

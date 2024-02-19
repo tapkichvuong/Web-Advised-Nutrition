@@ -1,5 +1,6 @@
 package com.B2007186.AdviseNutrition.domain;
 
+import com.B2007186.AdviseNutrition.domain.Users.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

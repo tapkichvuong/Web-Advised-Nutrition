@@ -4,16 +4,13 @@ import com.B2007186.AdviseNutrition.domain.Comment;
 import com.B2007186.AdviseNutrition.domain.Post;
 import com.B2007186.AdviseNutrition.dto.PostReq;
 import com.B2007186.AdviseNutrition.dto.PostRes;
-import com.B2007186.AdviseNutrition.repository.CommentRepository;
-import com.B2007186.AdviseNutrition.repository.PostRepository;
-import com.B2007186.AdviseNutrition.repository.UserRepository;
+import com.B2007186.AdviseNutrition.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +21,7 @@ public class PostService {
     public PostRes addPost(PostReq postReq) {
         var username = SecurityContextHolder.getContext().getAuthentication().getName();
         var user = userRepository.findByUserName(username);
-        if(!user.get().getIsActive()){
+        if(!user.get().getEnabled()){
             return PostRes.builder().message("This account is not activated").build();
         }
         var post = Post.builder()
@@ -48,7 +45,7 @@ public class PostService {
     public PostRes updatePost(Long postid, PostReq postReq) {
         var username = SecurityContextHolder.getContext().getAuthentication().getName();
         var user = userRepository.findByUserName(username);
-        if(!user.get().getIsActive()){
+        if(!user.get().getEnabled()){
             return PostRes.builder().message("This account is not activated").build();
         }
         var post = postRepository.findById(postid).get();
@@ -69,7 +66,7 @@ public class PostService {
     public String deletePost(Long postid) {
         var username = SecurityContextHolder.getContext().getAuthentication().getName();
         var user = userRepository.findByUserName(username);
-        if(!user.get().getIsActive()){
+        if(!user.get().getEnabled()){
             return "This account is not activated";
         }
         var post = postRepository.findById(postid).get();
@@ -88,7 +85,7 @@ public class PostService {
                 .build();
     }
 
-    private PostRes mapToTeachingResponse(Post post) {
+    private PostRes mapToPostResponse(Post post) {
         return PostRes.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -100,7 +97,7 @@ public class PostService {
     public List<PostRes> getPostList() {
         try {
             List<Post> postList = postRepository.findAllByOrderByCreatedAtDesc();
-            return postList.stream().map(this::mapToTeachingResponse).toList();
+            return postList.stream().map(this::mapToPostResponse).toList();
         } catch (Exception e) {
             // Handle JWT validation exception
             throw new RuntimeException("Error: " + e.getMessage());

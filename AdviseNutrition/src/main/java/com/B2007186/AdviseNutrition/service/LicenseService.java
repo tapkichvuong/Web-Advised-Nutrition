@@ -24,7 +24,7 @@ public class LicenseService {
                 .user(user.get())
                 .build();
         doctorLicenseRepository.save(license);
-        user.get().setIsActive(true);
+        user.get().setPostPermit(true);
         userRepository.save(user.get());
         return DrLicenseRes
                 .builder()
@@ -72,7 +72,7 @@ public class LicenseService {
         var user = userRepository.findByUserName(username);
         var license = doctorLicenseRepository.findByUserId(user.get().getId());
         doctorLicenseRepository.delete(license.get());
-        user.get().setIsActive(false);
+        user.get().setPostPermit(false);
         userRepository.save(user.get());
         return "Delete successfully";
     }

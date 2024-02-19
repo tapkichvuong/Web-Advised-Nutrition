@@ -1,5 +1,6 @@
 package com.B2007186.AdviseNutrition.domain;
 
+import com.B2007186.AdviseNutrition.domain.Users.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,4 +25,7 @@ public class Address {
 
     @OneToOne(mappedBy = "address", fetch = FetchType.LAZY)
     private User user;
+
+    @OneToOne(mappedBy = "address", fetch = FetchType.LAZY)
+    private Delivery delivery;
 }

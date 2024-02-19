@@ -1,10 +1,11 @@
-package com.B2007186.AdviseNutrition.domain;
+package com.B2007186.AdviseNutrition.domain.Users;
 
+import com.B2007186.AdviseNutrition.domain.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,11 +16,13 @@ import java.util.List;
 
 @Entity
 @Table(name="user_table", uniqueConstraints = @UniqueConstraint(columnNames = "userName"))
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "dtype")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class User implements UserDetails {
+@SuperBuilder(toBuilder = true)
+public abstract class User implements UserDetails {
     @Id @GeneratedValue
     @Column(name = "user_id", nullable = false, unique = true)
     private Long id;
@@ -37,7 +40,12 @@ public class User implements UserDetails {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
-    private Boolean isActive;
+    @Column(name = "verification_code", length = 64)
+    private String verificationCode;
+
+    private Boolean postPermit;
+
+    private Boolean enabled;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private List<Token> tokens;
@@ -46,15 +54,11 @@ public class User implements UserDetails {
     @JoinColumn(name = "address_id")
     private Address address;
 
-    @OneToOne(fetch = FetchType.EAGER, mappedBy = "user")
-    private DoctorLicense license;
-
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private List<Post> post;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private List<Comment> comment;
-    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
@@ -84,6 +88,10 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
+    }
+
+    public CharSequence getFullName() {
+        return firstName + " " + lastName;
     }
 }
