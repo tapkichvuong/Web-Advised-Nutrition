@@ -30,10 +30,10 @@ public class Product {
     private String description;
     private int stockQuantity;
 
-    @ManyToMany(mappedBy = "products", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "products")
     private List<Category> categories;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne
     private Seller productOwner;
 
     @ManyToMany

@@ -1,6 +1,7 @@
 package com.B2007186.AdviseNutrition.controller;
 
 
+import com.B2007186.AdviseNutrition.domain.Role;
 import com.B2007186.AdviseNutrition.domain.Users.Client;
 import com.B2007186.AdviseNutrition.domain.Users.Doctor;
 import com.B2007186.AdviseNutrition.domain.Users.Seller;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -25,19 +27,22 @@ import java.util.UUID;
 @RequestMapping("api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
+    private final static String  DEFAULT_AVATAR_PATH = "D:\\CTU\\NLNganh\\uploads\\defaultAvatar.png";
     private final AuthService service;
     private final PasswordEncoder passwordEncoder;
     @PostMapping("/register/client")
     public ResponseEntity<AuthenticationRes> registerCustomer(@RequestBody RegisterReq client)
             throws MessagingException, UnsupportedEncodingException {
+        if (service.isUsernameTaken(client.getUserName())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationRes.builder().message("Username already exists").build());
+        }
         String randomCode = UUID.randomUUID().toString();
         Client user = Client.builder()
                 .userName(client.getUserName())
-                .firstName(client.getFirstname())
-                .lastName(client.getLastname())
                 .email(client.getEmail())
+                .avatar(DEFAULT_AVATAR_PATH)
                 .passWord(passwordEncoder.encode(client.getPassword()))
-                .role(client.getRole())
+                .role(Role.CLIENT)
                 .verificationCode(randomCode)
                 .postPermit(false)
                 .enabled(false)
@@ -48,14 +53,16 @@ public class AuthController {
     @PostMapping("/register/doctor")
     public ResponseEntity<AuthenticationRes> registerDoctor(@RequestBody RegisterReq doctor)
             throws MessagingException, UnsupportedEncodingException {
+        if (service.isUsernameTaken(doctor.getUserName())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationRes.builder().message("Username already exists").build());
+        }
         String randomCode = UUID.randomUUID().toString();
         Doctor user = Doctor.builder()
                 .userName(doctor.getUserName())
-                .firstName(doctor.getFirstname())
-                .lastName(doctor.getLastname())
                 .email(doctor.getEmail())
+                .avatar(DEFAULT_AVATAR_PATH)
                 .passWord(passwordEncoder.encode(doctor.getPassword()))
-                .role(doctor.getRole())
+                .role(Role.DOCTOR)
                 .verificationCode(randomCode)
                 .postPermit(false)
                 .enabled(false)
@@ -65,14 +72,16 @@ public class AuthController {
     @PostMapping("/register/seller")
     public ResponseEntity<AuthenticationRes> registerSeller(@RequestBody RegisterReq seller)
             throws MessagingException, UnsupportedEncodingException {
+        if (service.isUsernameTaken(seller.getUserName())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationRes.builder().message("Username already exists").build());
+        }
         String randomCode = UUID.randomUUID().toString();
         Seller user = Seller.builder()
                 .userName(seller.getUserName())
-                .firstName(seller.getFirstname())
-                .lastName(seller.getLastname())
                 .email(seller.getEmail())
+                .avatar(DEFAULT_AVATAR_PATH)
                 .passWord(passwordEncoder.encode(seller.getPassword()))
-                .role(seller.getRole())
+                .role(Role.SELLER)
                 .verificationCode(randomCode)
                 .postPermit(false)
                 .enabled(false)

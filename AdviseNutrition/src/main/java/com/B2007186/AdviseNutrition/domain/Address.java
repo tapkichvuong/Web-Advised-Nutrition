@@ -1,6 +1,7 @@
 package com.B2007186.AdviseNutrition.domain;
 
 import com.B2007186.AdviseNutrition.domain.Users.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,13 +20,13 @@ public class Address {
     private Long id;
     private String street;
     private String ward;
-    private String city;
-    private String country;
-    private String zipcode;
+    private String district;
+    private String province;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "address", fetch = FetchType.LAZY)
     private User user;
-
+    @JsonIgnore
     @OneToOne(mappedBy = "address", fetch = FetchType.LAZY)
     private Delivery delivery;
 }

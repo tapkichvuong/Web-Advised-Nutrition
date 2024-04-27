@@ -11,17 +11,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PostRes {
+public class CommentRes {
     private Long id;
-    private String title;
-    private String category;
     private String body;
-    private String thumbnail;
+    private Long parentId;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private int likeCount;
+    private boolean likedByMe;
+    private String userName;
     private String firstName;
     private String lastName;
-    private String avatar;
     private String message;
     private int statusCode;
 }

@@ -1,6 +1,7 @@
 package com.B2007186.AdviseNutrition.domain.Users;
 
 import com.B2007186.AdviseNutrition.domain.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.text.DateFormat;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -34,9 +36,10 @@ public abstract class User implements UserDetails {
     private String phone;
     private String firstName;
     private String lastName;
+    private String avatar;
     @Enumerated(EnumType.STRING)
     private Gender gender;
-    private DateFormat Birth;
+    private LocalDate Birth;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -47,18 +50,28 @@ public abstract class User implements UserDetails {
 
     private Boolean enabled;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Token> tokens;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")
     private Address address;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Post> post;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Comment> comment;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Like> likes;
+
+
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }

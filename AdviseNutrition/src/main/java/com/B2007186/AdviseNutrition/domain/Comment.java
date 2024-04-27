@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -16,8 +17,8 @@ import java.time.LocalDateTime;
 @Builder
 public class Comment {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "comment_seq_gen")
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "comment_id", unique = true, nullable = false)
     private Long id;
 
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -35,4 +36,20 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "parent_id"
+    )
+    private Comment parent;
+
+    @OneToMany(
+            mappedBy = "parent",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL
+    )
+    private List<Comment> replies;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Like> likes;
 }

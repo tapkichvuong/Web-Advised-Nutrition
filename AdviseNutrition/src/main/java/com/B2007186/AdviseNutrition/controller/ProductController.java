@@ -1,6 +1,5 @@
 package com.B2007186.AdviseNutrition.controller;
 
-import com.B2007186.AdviseNutrition.domain.Product;
 import com.B2007186.AdviseNutrition.dto.ProductReq;
 import com.B2007186.AdviseNutrition.dto.ProductRes;
 import com.B2007186.AdviseNutrition.service.ProductService;
@@ -16,8 +15,8 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
     @GetMapping("/{id}")
-    public ResponseEntity<Product> findById(@PathVariable Long id) {
-        return ResponseEntity.ok().body(productService.findById(id));
+    public ResponseEntity<ProductRes> findById(@PathVariable Long id) {
+        return ResponseEntity.ok().body(productService.getProduct(id));
     }
 
     @GetMapping

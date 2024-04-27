@@ -1,17 +1,17 @@
 package com.B2007186.AdviseNutrition.dto;
 
-import com.B2007186.AdviseNutrition.domain.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class RegisterReq {
-    private String userName;
-    private String password;
-    private String email;
+public class AddressDTO {
+    private String street;
+    private String ward;
+    private String district;
+    private String province;
 }

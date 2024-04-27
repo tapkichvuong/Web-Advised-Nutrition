@@ -36,10 +36,16 @@ public class ProductService {
         }
 
     }
+
+    public ProductRes getProduct(Long id) {
+        Product product = findById(id);
+        return mapToProductResponse(product);
+    }
     private ProductRes mapToProductResponse(Product product) {
         return ProductRes.builder()
                 .id(product.getId())
                 .name(product.getName())
+                .price(product.getPrice())
                 .stockQuantity(product.getStockQuantity())
                 .description(product.getDescription())
                 .seller(product.getProductOwner().getFullName().toString())

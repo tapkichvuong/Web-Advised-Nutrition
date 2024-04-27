@@ -34,6 +34,11 @@ public class AuthService{
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailSenderService emailSenderService;
+
+    public boolean isUsernameTaken(String username) {
+        return userRepository.findByUserName(username).isPresent();
+    }
+
     public AuthenticationRes registerClient(Client user)
             throws MessagingException, UnsupportedEncodingException {
         Client savedUser = userRepository.save(user);
@@ -42,6 +47,7 @@ public class AuthService{
         saveUserToken(savedUser, jwtToken);
         emailSenderService.sendVerificationEmail(user);
         return AuthenticationRes.builder()
+                .role(user.getRole())
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -55,6 +61,7 @@ public class AuthService{
         saveUserToken(savedUser, jwtToken);
         emailSenderService.sendVerificationEmail(user);
         return AuthenticationRes.builder()
+                .role(user.getRole())
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -67,6 +74,7 @@ public class AuthService{
         saveUserToken(savedUser, jwtToken);
         emailSenderService.sendVerificationEmail(user);
         return AuthenticationRes.builder()
+                .role(user.getRole())
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -82,6 +90,7 @@ public class AuthService{
                 .orElseThrow();
         if(!user.getEnabled()){
             return AuthenticationRes.builder()
+                    .role(user.getRole())
                     .accessToken(null)
                     .refreshToken(null)
                     .message("Account is not available")
@@ -92,8 +101,10 @@ public class AuthService{
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
         return AuthenticationRes.builder()
+                .role(user.getRole())
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .message("Login successfully")
                 .build();
     }
 
@@ -142,6 +153,9 @@ public class AuthService{
                 var authResponse = AuthenticationRes.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
+                        .username(user.getUsername())
+                        .role(user.getRole())
+                        .message("Refresh token successfully")
                         .build();
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
