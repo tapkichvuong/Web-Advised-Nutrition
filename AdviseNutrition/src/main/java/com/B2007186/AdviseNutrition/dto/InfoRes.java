@@ -16,6 +16,7 @@ import java.time.LocalDate;
 public class InfoRes {
     private String email;
     private String phone;
+    private String userName;
     private String firstName;
     private String lastName;
     private String avatar;

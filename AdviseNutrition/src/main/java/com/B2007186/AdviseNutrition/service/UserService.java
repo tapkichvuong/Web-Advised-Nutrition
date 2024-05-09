@@ -15,8 +15,10 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +49,7 @@ public class UserService {
                 .province(user.getAddress().getProvince())
                 .build();
         var info = InfoRes.builder()
+                .userName(user.getUsername())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .avatar(avatarLink)
@@ -90,6 +93,7 @@ public class UserService {
                 .province(user.getAddress().getProvince())
                 .build();
         var info = InfoRes.builder()
+                .userName(user.getUsername())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .avatar(avatarLink)
@@ -100,5 +104,47 @@ public class UserService {
                 .address(addressDTO)
                 .build();
         return Optional.of(info);
+    }
+
+    public List<InfoRes> searchProfiles(String query) {
+        List<User> users = userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(query, query);
+
+        List<InfoRes> searchResults = users.stream().map(user -> {
+            String[] filePath = user.getAvatar().split("\\\\");
+            String filename = filePath[filePath.length - 1];
+            String avatarLink = BASE_IMAGE_URL + filename;
+            AddressDTO addressDTO = AddressDTO.builder()
+                    .street(user.getAddress().getStreet())
+                    .ward(user.getAddress().getWard())
+                    .district(user.getAddress().getDistrict())
+                    .province(user.getAddress().getProvince())
+                    .build();
+            return InfoRes.builder()
+                    .userName(user.getUsername())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .avatar(avatarLink)
+                    .email(user.getEmail())
+                    .Birth(user.getBirth())
+                    .gender(user.getGender())
+                    .phone(user.getPhone())
+                    .address(addressDTO)
+                    .build();
+        }).collect(Collectors.toList());
+
+        return searchResults;
+    }
+
+    public Optional<String> getUserDescription(String username) {
+        return userRepository.findByUserName(username).map(User::getDescription);
+    }
+
+    public Optional<String> updateUserDescription(String description) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUserName(username).map(user -> {
+            user.setDescription(description);
+            userRepository.save(user);
+            return description;
+        });
     }
 }

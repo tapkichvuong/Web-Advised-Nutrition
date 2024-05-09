@@ -59,6 +59,8 @@ public abstract class User implements UserDetails {
     @JoinColumn(name = "address_id")
     private Address address;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Post> post;

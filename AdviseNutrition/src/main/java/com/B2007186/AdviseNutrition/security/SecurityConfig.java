@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                                 .requestMatchers("/api/v1/image/**").permitAll()
                                 .requestMatchers("api/v1/posts").permitAll()
+                                .requestMatchers("api/v1/user/search").permitAll()
+                                .requestMatchers("api/v1/user/description").permitAll()
 //                        .requestMatchers("api/v1/doctor/**").hasRole(Role.DOCTOR.name())
                         .anyRequest().authenticated()
                 )
